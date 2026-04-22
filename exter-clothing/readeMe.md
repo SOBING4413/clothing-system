@@ -15,3 +15,9 @@ ensure exter-polyzone
 ensure exter-clothing
 ensure Sobing-outfits
 
+## SQL usage (important)
+
+- **Fresh install / new server**: run **`exter-clothing/clothing.sql`** only.
+- **Existing server that already has old exter-clothing tables**: run **`exter-clothing/clothing-fix.sql`** as a migration.
+
+`clothing-fix.sql` is now migration-only (ALTER statements), so it's not interchangeable with `clothing.sql`.
