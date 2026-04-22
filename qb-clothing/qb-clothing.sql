@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `playerskins` (
   `skin` text NOT NULL,
   `active` tinyint(2) NOT NULL DEFAULT 1,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_playerskins_citizenid` (`citizenid`),
   KEY `citizenid` (`citizenid`),
   KEY `active` (`active`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
@@ -18,5 +19,5 @@ CREATE TABLE IF NOT EXISTS `player_outfits` (
   `outfitId` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `citizenid` (`citizenid`),
-  KEY `outfitId` (`outfitId`)
+  UNIQUE KEY `uniq_player_outfits_outfitid` (`outfitId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
