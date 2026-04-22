@@ -118,6 +118,8 @@ local faceProps = {
 }
 -- Functions
 function GetMaxValues()
+    local maxHairColor = math.max((GetNumHairColors() or 1) - 1, 0)
+    local maxMakeupColor = math.max((GetNumMakeupColors() or 1) - 1, 0)
     local maxModelValues = {
         ["arms"] =                 {type = "clothing",         item = 0,     texture = 0},
         ["t-shirt"] =              {type = "clothing",         item = 0,     texture = 0},
@@ -176,7 +178,7 @@ function GetMaxValues()
 
         if v.type == "hair" then
             maxModelValues[k].item = GetNumberOfPedDrawableVariations(ped, v.id)
-            maxModelValues[k].texture = 45
+            maxModelValues[k].texture = maxHairColor
         end
 
         if v.type == "mask" then
@@ -206,7 +208,13 @@ function GetMaxValues()
 
         if v.type == "overlay" then
             maxModelValues[k].item = GetNumHeadOverlayValues(v.id)
-            maxModelValues[k].texture = 45
+            if k == "eyebrows" or k == "beard" then
+                maxModelValues[k].texture = maxHairColor
+            elseif k == "blush" or k == "lipstick" or k == "makeup" then
+                maxModelValues[k].texture = maxMakeupColor
+            else
+                maxModelValues[k].texture = maxHairColor
+            end
         end
 
         if v.type == "prop" then
@@ -291,7 +299,7 @@ local function resetClothing(data)
 
     -- Blush
     SetPedHeadOverlay(ped, 5, data["blush"].item, 1.0)
-    SetPedHeadOverlayColor(ped, 5, 1, data["blush"].texture, 0)
+    SetPedHeadOverlayColor(ped, 5, 2, data["blush"].texture, 0)
 
     -- Lipstick
     SetPedHeadOverlay(ped, 8, data["lipstick"].item, 1.0)
@@ -446,7 +454,7 @@ local function ChangeVariation(data)
     local ped = PlayerPedId()
     local clothingCategory = data.clothingType
     local type = data.type
-    local item = data.articleNumber
+    local item = tonumber(data.articleNumber) or 0
 
     if clothingCategory == "pants" then
         if type == "item" then
@@ -487,56 +495,77 @@ local function ChangeVariation(data)
             SetPedComponentVariation(ped, 2, item, 0, 0)
             skinData["hair"].item = item
         elseif type == "texture" then
-            SetPedHairColor(ped, item, item)
-            skinData["hair"].texture = item
+            local maxHairColor = math.max((GetNumHairColors() or 1) - 1, 0)
+            local clampedColor = math.min(math.max(item, 0), maxHairColor)
+            SetPedHairColor(ped, clampedColor, clampedColor)
+            skinData["hair"].texture = clampedColor
+            return
         end
     elseif clothingCategory == "eyebrows" then
         if type == "item" then
             SetPedHeadOverlay(ped, 2, item, 1.0)
             skinData["eyebrows"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 2, 1, item, 0)
-            skinData["eyebrows"].texture = item
+            local maxHairColor = math.max((GetNumHairColors() or 1) - 1, 0)
+            local clampedColor = math.min(math.max(item, 0), maxHairColor)
+            SetPedHeadOverlayColor(ped, 2, 1, clampedColor, 0)
+            skinData["eyebrows"].texture = clampedColor
+            return
         end
     elseif clothingCategory == "beard" then
         if type == "item" then
             SetPedHeadOverlay(ped, 1, item, 1.0)
             skinData["beard"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 1, 1, item, 0)
-            skinData["beard"].texture = item
+            local maxHairColor = math.max((GetNumHairColors() or 1) - 1, 0)
+            local clampedColor = math.min(math.max(item, 0), maxHairColor)
+            SetPedHeadOverlayColor(ped, 1, 1, clampedColor, 0)
+            skinData["beard"].texture = clampedColor
+            return
         end
     elseif clothingCategory == "blush" then
         if type == "item" then
             SetPedHeadOverlay(ped, 5, item, 1.0)
             skinData["blush"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 5, 2, item, 0)
-            skinData["blush"].texture = item
+            local maxMakeupColor = math.max((GetNumMakeupColors() or 1) - 1, 0)
+            local clampedColor = math.min(math.max(item, 0), maxMakeupColor)
+            SetPedHeadOverlayColor(ped, 5, 2, clampedColor, 0)
+            skinData["blush"].texture = clampedColor
+            return
         end
     elseif clothingCategory == "lipstick" then
         if type == "item" then
             SetPedHeadOverlay(ped, 8, item, 1.0)
             skinData["lipstick"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 8, 2, item, 0)
-            skinData["lipstick"].texture = item
+            local maxMakeupColor = math.max((GetNumMakeupColors() or 1) - 1, 0)
+            local clampedColor = math.min(math.max(item, 0), maxMakeupColor)
+            SetPedHeadOverlayColor(ped, 8, 2, clampedColor, 0)
+            skinData["lipstick"].texture = clampedColor
+            return
         end
     elseif clothingCategory == "makeup" then
         if type == "item" then
             SetPedHeadOverlay(ped, 4, item, 1.0)
             skinData["makeup"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 4, 2, item, 0)
-            skinData["makeup"].texture = item
+            local maxMakeupColor = math.max((GetNumMakeupColors() or 1) - 1, 0)
+            local clampedColor = math.min(math.max(item, 0), maxMakeupColor)
+            SetPedHeadOverlayColor(ped, 4, 2, clampedColor, 0)
+            skinData["makeup"].texture = clampedColor
+            return
         end
     elseif clothingCategory == "ageing" then
         if type == "item" then
             SetPedHeadOverlay(ped, 3, item, 1.0)
             skinData["ageing"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 3, 1, item, 0)
-            skinData["ageing"].texture = item
+            local maxHairColor = math.max((GetNumHairColors() or 1) - 1, 0)
+            local clampedColor = math.min(math.max(item, 0), maxHairColor)
+            SetPedHeadOverlayColor(ped, 3, 1, clampedColor, 0)
+            skinData["ageing"].texture = clampedColor
+            return
         end
     elseif clothingCategory == "arms" then
         if type == "item" then
