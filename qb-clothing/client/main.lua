@@ -37,7 +37,7 @@ local skinData = {
     ["accessory"] =            {item = 0,    texture = 0,  defaultItem = 0,      defaultTexture = 0},
     ["decals"] =               {item = 0,    texture = 0,  defaultItem = 0,      defaultTexture = 0},
     ["eye_color"] =            {item = -1,   texture = 0,  defaultItem = -1,     defaultTexture = 0},
-    ["moles"] =                {item = 0,    texture = 0,  defaultItem = -1,     defaultTexture = 0},
+    ["moles"] =                {item = -1,   texture = 0,  defaultItem = -1,     defaultTexture = 0},
     ["nose_0"] =               {item = 0,    texture = 0,  defaultItem = 0,      defaultTexture = 0},
     ["nose_1"] =               {item = 0,    texture = 0,  defaultItem = 0,      defaultTexture = 0},
     ["nose_2"] =               {item = 0,    texture = 0,  defaultItem = 0,      defaultTexture = 0},
@@ -295,11 +295,11 @@ local function resetClothing(data)
 
     -- Lipstick
     SetPedHeadOverlay(ped, 8, data["lipstick"].item, 1.0)
-    SetPedHeadOverlayColor(ped, 8, 1, data["lipstick"].item, 0)
+    SetPedHeadOverlayColor(ped, 8, 2, data["lipstick"].texture, 0)
 
     -- Makeup
     SetPedHeadOverlay(ped, 4, data["makeup"].item, 1.0)
-    SetPedHeadOverlayColor(ped, 4, 1, data["makeup"].texture, 0)
+    SetPedHeadOverlayColor(ped, 4, 2, data["makeup"].texture, 0)
 
     -- Ageing
     SetPedHeadOverlay(ped, 3, data["ageing"].item, 1.0)
@@ -341,7 +341,11 @@ local function resetClothing(data)
     SetPedComponentVariation(ped, 5, data["bag"].item, 0, 2)
     SetPedComponentVariation(ped, 5, data["bag"].item, data["bag"].texture, 0)
     SetPedEyeColor(ped, data['eye_color'].item)
-    SetPedHeadOverlay(ped, 9, data['moles'].item, data['moles'].texture)
+    local molesOpacity = tonumber(data['moles'].texture) or 0
+    if molesOpacity > 1 then
+        molesOpacity = molesOpacity / 10
+    end
+    SetPedHeadOverlay(ped, 9, data['moles'].item, molesOpacity)
     SetPedFaceFeature(ped, 0, data['nose_0'].item)
     SetPedFaceFeature(ped, 1, data['nose_1'].item)
     SetPedFaceFeature(ped, 2, data['nose_2'].item)
@@ -507,7 +511,7 @@ local function ChangeVariation(data)
             SetPedHeadOverlay(ped, 5, item, 1.0)
             skinData["blush"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 5, 1, item, 0)
+            SetPedHeadOverlayColor(ped, 5, 2, item, 0)
             skinData["blush"].texture = item
         end
     elseif clothingCategory == "lipstick" then
@@ -515,7 +519,7 @@ local function ChangeVariation(data)
             SetPedHeadOverlay(ped, 8, item, 1.0)
             skinData["lipstick"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 8, 1, item, 0)
+            SetPedHeadOverlayColor(ped, 8, 2, item, 0)
             skinData["lipstick"].texture = item
         end
     elseif clothingCategory == "makeup" then
@@ -523,7 +527,7 @@ local function ChangeVariation(data)
             SetPedHeadOverlay(ped, 4, item, 1.0)
             skinData["makeup"].item = item
         elseif type == "texture" then
-            SetPedHeadOverlayColor(ped, 4, 1, item, 0)
+            SetPedHeadOverlayColor(ped, 4, 2, item, 0)
             skinData["makeup"].texture = item
         end
     elseif clothingCategory == "ageing" then
@@ -558,12 +562,8 @@ local function ChangeVariation(data)
             SetPedHeadOverlay(ped, 9, item, 1.0)
             skinData["moles"].item = item
         elseif type == "texture" then
-            local curItem = GetPedDrawableVariation(ped, 9)
-            -- (data['moles'].texture / 10) + 0.0
-            -- local curItem = GetPedDrawableVariation(ped, 9)
             local newitem = (item / 10)
-            -- print(newitem)
-            SetPedHeadOverlayColor(ped, 9, curItem, newitem)
+            SetPedHeadOverlay(ped, 9, skinData["moles"].item, newitem)
             skinData["moles"].texture = item
         end
     elseif clothingCategory == "nose_0" then
